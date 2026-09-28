@@ -1,0 +1,327 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  phone             String?   @unique
+  passwordHash      String
+  name              String?
+  avatar            String?
+  isEmailVerified   Boolean   @default(false)
+  isPhoneVerified   Boolean   @default(false)
+  currency          String    @default("INR")
+  language          String    @default("en")
+  theme             String    @default("system")
+  notificationsEnabled Boolean @default(true)
+  biometricEnabled  Boolean   @default(false)
+  autoSyncEnabled   Boolean   @default(true)
+  syncFrequency     String    @default("15min")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  devices           UserDevice[]
+  accounts          Account[]
+  transactions      Transaction[]
+  categories        Category[]
+  budgets           Budget[]
+  goals             Goal[]
+  consents          Consent[]
+  notifications     Notification[]
+  analyticsCache    AnalyticsCache[]
+  deletedRecords    DeletedRecord[]
+  auditLogs         AuditLog[]
+  
+  @@map("users")
+}
+
+model UserDevice {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId    String   @unique
+  platform    String
+  lastSeen    DateTime @default(now())
+  isTrusted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  @@map("user_devices")
+}
+
+model FinancialInstitution {
+  id          String   @id @default(uuid())
+  name        String
+  logo        String?
+  type        String
+  country     String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  accounts    Account[]
+  
+  @@map("financial_institutions")
+}
+
+model Account {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institutionId       String
+  institution         FinancialInstitution @relation(fields: [institutionId], references: [id])
+  accountType         String
+  accountSubType      String?
+  maskedNumber        String
+  currency            String   @default("INR")
+  balance             Decimal  @db.Decimal(19, 4)
+  availableBalance    Decimal? @db.Decimal(19, 4)
+  creditLimit         Decimal? @db.Decimal(19, 4)
+  isActive            Boolean  @default(true)
+  lastSyncedAt        DateTime?
+  lastSuccessfulSync  DateTime?
+  syncStatus          String   @default("PENDING")
+  syncError           String?
+  consentId           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  transactions        Transaction[]
+  
+  @@index([userId])
+  @@index([institutionId])
+  @@index([consentId])
+  @@map("accounts")
+}
+
+model Transaction {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId         String
+  account           Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  externalId        String?
+  amount            Decimal  @db.Decimal(19, 4)
+  currency          String   @default("INR")
+  type              String
+  status            String   @default("PENDING")
+  description       String
+  merchantName      String?
+  merchantLogo      String?
+  transactionDate   DateTime
+  postedDate        DateTime?
+  categoryId        String?
+  category          Category? @relation(fields: [categoryId], references: [id])
+  subcategory       String?
+  source            String
+  paymentChannel    String?
+  upiReference      String?
+  bankReference     String?
+  isRecurring       Boolean  @default(false)
+  isTransfer        Boolean  @default(false)
+  transferPairId    String?
+  confidence        Float    @default(0)
+  notes             String?
+  tags              String[]
+  locationLatitude  Float?
+  locationLongitude Float?
+  locationAddress   String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([transactionDate])
+  @@index([externalId])
+  @@index([upiReference])
+  @@index([isTransfer])
+  @@index([isRecurring])
+  @@index([transferPairId])
+  @@map("transactions")
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Category[] @relation("CategoryHierarchy")
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  icon        String
+  type        String
+  color       String?
+  isSystem    Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  transactions Transaction[]
+  budgets     Budget[]
+  
+  @@index([parentId])
+  @@index([userId])
+  @@index([type])
+  @@index([sortOrder])
+  @@map("categories")
+}
+
+model Budget {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount          Decimal  @db.Decimal(19, 4)
+  period          String
+  startDate       DateTime
+  endDate         DateTime?
+  spentAmount     Decimal  @default(0) @db.Decimal(19, 4)
+  alertThreshold  Float    @default(0.8)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([categoryId])
+  @@index([period])
+  @@index([startDate, endDate])
+  @@map("budgets")
+}
+
+model Goal {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String
+  description         String?
+  targetAmount        Decimal  @db.Decimal(19, 4)
+  currentAmount       Decimal  @default(0) @db.Decimal(19, 4)
+  currency            String   @default("INR")
+  targetDate          DateTime
+  monthlyContribution Decimal? @db.Decimal(19, 4)
+  status              String   @default("ACTIVE")
+  icon                String?
+  color               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([targetDate])
+  @@map("goals")
+}
+
+model Consent {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerId    String
+  providerName  String
+  providerLogo  String?
+  consentId     String   @unique
+  status        String   @default("PENDING")
+  grantedAt     DateTime
+  expiresAt     DateTime?
+  revokedAt     DateTime?
+  accounts      Json
+  permissions   String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([providerId])
+  @@index([consentId])
+  @@index([status])
+  @@map("consents")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean  @default(false)
+  priority  String   @default("NORMAL")
+  actionUrl String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@index([type])
+  @@map("notifications")
+}
+
+model AnalyticsCache {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cacheKey  String
+  data      Json
+  period    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, cacheKey])
+  @@index([expiresAt])
+  @@map("analytics_cache")
+}
+
+model DeletedRecord {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType  String
+  entityId    String
+  deletedAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([deletedAt])
+  @@map("deleted_records")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String?
+  entityId   String?
+  ipAddress  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model MerchantLookup {
+  id             String   @id @default(uuid())
+  keyword        String   @unique
+  merchantName   String
+  categoryName   String
+  logo           String?
+  paymentChannel String?
+  createdAt      DateTime @default(now())
+
+  @@index([keyword])
+  @@map("merchant_lookup")
+}

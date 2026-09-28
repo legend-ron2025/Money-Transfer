@@ -1,0 +1,119 @@
+name: Android Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  release:
+    name: Build & Publish Release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write   # needed to create GitHub Releases
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      # ── Decode the release keystore from a base64 secret ──────────────────
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/moneytracker-release.keystore
+        shell: bash
+
+      - name: Grant gradlew permission
+        run: chmod +x android/gradlew
+
+      - name: Build Release APK
+        working-directory: android
+        env:
+          KEYSTORE_PATH:     ${{ github.workspace }}/android/app/moneytracker-release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS:         ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD:      ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease --stacktrace
+
+      # ── Rename APK with version tag ────────────────────────────────────────
+      - name: Rename APK
+        id: apk
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          SRC="android/app/build/outputs/apk/release/app-release.apk"
+          DST="MoneyTracker-${VERSION}.apk"
+          cp "$SRC" "$DST"
+          SHA256=$(sha256sum "$DST" | awk '{print $1}')
+          echo "version=${VERSION}"     >> "$GITHUB_OUTPUT"
+          echo "apk_path=${DST}"        >> "$GITHUB_OUTPUT"
+          echo "sha256=${SHA256}"        >> "$GITHUB_OUTPUT"
+          SIZE=$(du -sh "$DST" | awk '{print $1}')
+          echo "file_size=${SIZE}"       >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      # ── Create GitHub Release with APK attached ────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name:   ${{ github.ref_name }}
+          name:       MoneyTracker ${{ github.ref_name }}
+          body:       |
+            ## MoneyTracker ${{ github.ref_name }}
+
+            **SHA-256:** `${{ steps.apk.outputs.sha256 }}`
+            **Size:** ${{ steps.apk.outputs.file_size }}
+            **Requires:** Android 7.0+
+
+            ### Install
+            1. Download `MoneyTracker-${{ steps.apk.outputs.version }}.apk`
+            2. Enable *Install Unknown Apps* in Android settings
+            3. Open the APK and install
+
+            See the [full changelog](https://moneytracker.app/download).
+          files: ${{ steps.apk.outputs.apk_path }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+
+      # ── Update website/public/releases/latest.json & commit ───────────────
+      - name: Update latest.json
+        run: |
+          VERSION="${{ steps.apk.outputs.version }}"
+          SHA="${{ steps.apk.outputs.sha256 }}"
+          SIZE="${{ steps.apk.outputs.file_size }}"
+          APK_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/MoneyTracker-${VERSION}.apk"
+          DATE=$(date -u +%Y-%m-%d)
+
+          jq -n \
+            --arg version    "$VERSION" \
+            --arg apkUrl     "$APK_URL" \
+            --arg sha256     "$SHA" \
+            --arg releaseDate "$DATE" \
+            --arg fileSize   "$SIZE" \
+            '{
+              version:     $version,
+              apkUrl:      $apkUrl,
+              sha256:      $sha256,
+              releaseDate: $releaseDate,
+              fileSize:    $fileSize,
+              minAndroid:  "7.0 (API 24)",
+              changelog:   ["See GitHub release notes"]
+            }' > website/public/releases/latest.json
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add website/public/releases/latest.json
+          git commit -m "chore: update releases/latest.json for ${{ github.ref_name }}"
+          git push origin HEAD:main
+        shell: bash

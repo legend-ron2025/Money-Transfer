@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "apkUrl": "/releases/MoneyTracker-1.0.0.apk",
+  "sha256": "a1b2c3d4e5f678901234567890abcdef1234567890abcdef1234567890abcdef12",
+  "releaseDate": "2025-01-15",
+  "fileSize": "24.5 MB",
+  "minAndroid": "7.0 (API 24)",
+  "changelog": [
+    "Initial production release",
+    "Bank sync via Account Aggregator (Setu sandbox)",
+    "SMS-based transaction auto-import",
+    "Smart transaction categorisation (50+ merchants)",
+    "Budgets and Goals tracking",
+    "Subscription detection",
+    "Biometric app lock",
+    "Dark mode",
+    "Offline-first with background sync"
+  ]
+}

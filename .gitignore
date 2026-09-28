@@ -1,0 +1,48 @@
+# ── Node / Backend ────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.env
+*.env.local
+*.env.production
+
+# ── Next.js / Website ─────────────────────────────────────────────────────────
+.next/
+out/
+website/node_modules/
+website/.next/
+website/out/
+
+# ── Android ───────────────────────────────────────────────────────────────────
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/app/moneytracker-release.keystore
+*.keystore
+*.jks
+google-services.json
+android/app/src/main/google-services.json
+
+# ── Logs & temp ───────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+prisma_out.txt
+prisma_err.txt
+icon_source.png
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+coverage/
+*.tsbuildinfo

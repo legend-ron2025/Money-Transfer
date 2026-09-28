@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors (Dark) -->
+    <color name="md_theme_dark_primary">#D0CDFF</color>
+    <color name="md_theme_dark_onPrimary">#211D5E</color>
+    <color name="md_theme_dark_primaryContainer">#3E3A7E</color>
+    <color name="md_theme_dark_onPrimaryContainer">#E8E6FF</color>
+    
+    <!-- Secondary Colors (Dark) -->
+    <color name="md_theme_dark_secondary">#A7F6F3</color>
+    <color name="md_theme_dark_onSecondary">#003836</color>
+    <color name="md_theme_dark_secondaryContainer">#004F4D</color>
+    <color name="md_theme_dark_onSecondaryContainer">#CCF2F1</color>
+    
+    <!-- Tertiary Colors (Dark) -->
+    <color name="md_theme_dark_tertiary">#A5D6A7</color>
+    <color name="md_theme_dark_onTertiary">#1B5E20</color>
+    <color name="md_theme_dark_tertiaryContainer">#1B5E20</color>
+    <color name="md_theme_dark_onTertiaryContainer">#C8E6C9</color>
+    
+    <!-- Error Colors (Dark) -->
+    <color name="md_theme_dark_error">#FFB4AB</color>
+    <color name="md_theme_dark_onError">#410002</color>
+    <color name="md_theme_dark_errorContainer">#93000A</color>
+    <color name="md_theme_dark_onErrorContainer">#FFDAD6</color>
+    
+    <!-- Surface Colors (Dark) -->
+    <color name="md_theme_dark_surface">#1E1E1E</color>
+    <color name="md_theme_dark_onSurface">#FFFFFF</color>
+    <color name="md_theme_dark_surfaceContainer">#2C2C2C</color>
+    <color name="md_theme_dark_surfaceContainerHigh">#363636</color>
+    <color name="md_theme_dark_surfaceContainerHighest">#404040</color>
+    
+    <!-- Background (Dark) -->
+    <color name="md_theme_dark_background">#121212</color>
+    <color name="md_theme_dark_onBackground">#FFFFFF</color>
+    
+    <!-- Outline (Dark) -->
+    <color name="md_theme_dark_outline">#8A8A8A</color>
+    <color name="md_theme_dark_outlineVariant">#6E6E6E</color>
+    
+    <!-- Inverse (Dark) -->
+    <color name="md_theme_dark_inverseSurface">#E6E1E5</color>
+    <color name="md_theme_dark_inverseOnSurface">#313033</color>
+    <color name="md_theme_dark_inversePrimary">#6C63FF</color>
+    
+    <!-- Surface Tint (Dark) -->
+    <color name="md_theme_dark_surfaceTint">#D0CDFF</color>
+    <color name="md_theme_dark_scrim">#000000</color>
+    
+    <!-- Primary Fixed (Dark) -->
+    <color name="md_theme_dark_primaryFixed">#E8E6FF</color>
+    <color name="md_theme_dark_onPrimaryFixed">#211D5E</color>
+    <color name="md_theme_dark_primaryFixedDim">#D0CDFF</color>
+    <color name="md_theme_dark_onPrimaryFixedVariant">#3E3A7E</color>
+    
+    <!-- Secondary Fixed (Dark) -->
+    <color name="md_theme_dark_secondaryFixed">#CCF2F1</color>
+    <color name="md_theme_dark_onSecondaryFixed">#003836</color>
+    <color name="md_theme_dark_secondaryFixedDim">#A7F6F3</color>
+    <color name="md_theme_dark_onSecondaryFixedVariant">#004F4D</color>
+    
+    <!-- Tertiary Fixed (Dark) -->
+    <color name="md_theme_dark_tertiaryFixed">#C8E6C9</color>
+    <color name="md_theme_dark_onTertiaryFixed">#1B5E20</color>
+    <color name="md_theme_dark_tertiaryFixedDim">#A5D6A7</color>
+    <color name="md_theme_dark_onTertiaryFixedVariant">#1B5E20</color>
+    
+    <!-- Error Fixed (Dark) -->
+    <color name="md_theme_dark_errorFixed">#FFDAD6</color>
+    <color name="md_theme_dark_onErrorFixed">#410002</color>
+    <color name="md_theme_dark_errorFixedDim">#FFB4AB</color>
+    <color name="md_theme_dark_onErrorFixedVariant">#93000A</color>
+    
+    <!-- Warning (Dark) -->
+    <color name="md_theme_dark_warning">#FFB74D</color>
+    <color name="md_theme_dark_onWarning">#E65100</color>
+    <color name="md_theme_dark_warningContainer">#E65100</color>
+    <color name="md_theme_dark_onWarningContainer">#FFE0B2</color>
+</resources>

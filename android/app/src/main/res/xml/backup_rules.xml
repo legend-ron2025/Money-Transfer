@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude all sensitive data from Android Auto-Backup -->
+    <exclude domain="sharedpref" path="encrypted_prefs.xml" />
+    <exclude domain="sharedpref" path="auth.xml" />
+    <exclude domain="database"   path="moneytracker.db" />
+    <exclude domain="database"   path="moneytracker.db-wal" />
+    <exclude domain="database"   path="moneytracker.db-shm" />
+</full-backup-content>

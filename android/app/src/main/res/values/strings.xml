@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MoneyTracker</string>
+    <string name="default_notification_channel_id">money_tracker_alerts</string>
+    <string name="notification_channel_name">MoneyTracker Alerts</string>
+    <string name="notification_channel_description">Budget alerts, transaction notifications and sync updates</string>
+</resources>
